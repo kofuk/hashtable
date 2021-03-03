@@ -156,7 +156,7 @@ static void vector_free(vector *obj, size_t size) {
     free(obj);
 }
 
-static char *vector_lookup(vector *vec, char const *key) {
+static char *vector_lookup(vector const *vec, char const *key) {
     for (size_t i = 0; i < vec->size; ++i) {
         if (strcmp(vec->data[i].key, key) == 0) {
             return vec->data[i].val;
@@ -207,7 +207,7 @@ void hashtable_put(hashtable *ht, char const *key, char const *val) {
     }
 }
 
-char *hashtable_get(hashtable *ht, char const *key) {
+char *hashtable_get(hashtable const *ht, char const *key) {
     size_t idx = hash(key) % primes[ht->table_size_index];
     return vector_lookup(&ht->data[idx], key);
 }

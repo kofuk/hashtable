@@ -43,7 +43,7 @@ HASHTABLE_API hashtable *hashtable_new(void);
 HASHTABLE_API void hashtable_free(hashtable *obj);
 
 HASHTABLE_API void hashtable_put(hashtable *ht, char const *key, char const *val);
-HASHTABLE_API char *hashtable_get(hashtable *ht, char const *key);
+HASHTABLE_API char *hashtable_get(hashtable const *ht, char const *key);
 HASHTABLE_API void hashtable_erase(hashtable *ht, char const *key);
 
 END_DECL
