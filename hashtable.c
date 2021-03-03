@@ -39,10 +39,10 @@ typedef struct {
     pair *data;
     size_t size;
     size_t cap;
-} element_vector;
+} vector;
 
 struct hashtable {
-    element_vector *data;
+    vector *data;
     size_t table_size_index;
     size_t size;
 };
@@ -100,13 +100,13 @@ hashtable *hashtable_new(void) {
     memset(result, 0, sizeof(hashtable));
     result->table_size_index = 4;
     size_t const data_size =
-        primes[result->table_size_index] * sizeof(element_vector);
+        primes[result->table_size_index] * sizeof(vector);
     result->data = malloc(data_size);
     memset(result->data, 0, data_size);
     return result;
 }
 
-static bool add_to_vector(element_vector *vec, char const *key,
+static bool vector_append(vector *vec, char const *key,
                           char const *val) {
     if (vec->cap == 0) {
         vec->cap = 1;
@@ -145,7 +145,7 @@ static bool add_to_vector(element_vector *vec, char const *key,
     return !has_value;
 }
 
-static void element_vector_free(element_vector *obj, size_t size) {
+static void vector_free(vector *obj, size_t size) {
     for (size_t i = 0; i < size; ++i) {
         for (size_t j = 0; j < obj[i].size; ++j) {
             free(obj[i].data[j].key);
@@ -156,7 +156,7 @@ static void element_vector_free(element_vector *obj, size_t size) {
     free(obj);
 }
 
-static char *lookup_from_vector(element_vector *vec, char const *key) {
+static char *vector_lookup(vector *vec, char const *key) {
     for (size_t i = 0; i < vec->size; ++i) {
         if (strcmp(vec->data[i].key, key) == 0) {
             return vec->data[i].val;
@@ -170,16 +170,16 @@ void hashtable_put(hashtable *ht, char const *key, char const *val) {
         ht->size >= (size_t)(primes[ht->table_size_index] * 0.75)) {
         // rehash
         size_t new_size = primes[ht->table_size_index + 1];
-        element_vector *new_data = malloc(new_size * sizeof(element_vector));
-        memset(new_data, 0, new_size * sizeof(element_vector));
+        vector *new_data = malloc(new_size * sizeof(vector));
+        memset(new_data, 0, new_size * sizeof(vector));
         for (size_t i = 0; i < primes[ht->table_size_index]; ++i) {
             for (size_t j = 0; j < ht->data[i].size; ++j) {
                 size_t idx = hash(ht->data[i].data[j].key) % new_size;
-                add_to_vector(&new_data[idx], ht->data[i].data[j].key,
+                vector_append(&new_data[idx], ht->data[i].data[j].key,
                               ht->data[i].data[j].val);
             }
         }
-        element_vector_free(ht->data, primes[ht->table_size_index]);
+        vector_free(ht->data, primes[ht->table_size_index]);
 
         ht->data = new_data;
         ht->table_size_index++;
@@ -187,17 +187,17 @@ void hashtable_put(hashtable *ht, char const *key, char const *val) {
 
     size_t idx = hash(key) % primes[ht->table_size_index];
 
-    if (add_to_vector(&ht->data[idx], key, val)) {
+    if (vector_append(&ht->data[idx], key, val)) {
         ht->size++;
     }
 }
 
 char *hashtable_get(hashtable *ht, char const *key) {
     size_t idx = hash(key) % primes[ht->table_size_index];
-    return lookup_from_vector(&ht->data[idx], key);
+    return vector_lookup(&ht->data[idx], key);
 }
 
 void hashtable_free(hashtable *obj) {
-    element_vector_free(obj->data, primes[obj->table_size_index]);
+    vector_free(obj->data, primes[obj->table_size_index]);
     free(obj);
 }
