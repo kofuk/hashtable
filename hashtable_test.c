@@ -18,18 +18,26 @@
 
 #include "hashtable.h"
 
-int main(void) {
-    hashtable *ht = hashtable_new();
-    hashtable_put(ht, "foo", "bar");
-
-    char *v = hashtable_get(ht, "foo");
+static void check_value(hashtable *ht, char const *key, char const *expected_value) {
+    char *v = hashtable_get(ht, key);
     if (v) {
-        if (strcmp(v, "bar") != 0) {
-            printf("`bar' expected, but got `%s'\n", v);
+        if (strcmp(v, expected_value) != 0) {
+            printf("`%s' expected, but got `%s'\n", expected_value, v);
         }
     } else {
-        puts("`bar' expected, but no value found.");
+        printf("`%s' expected, but no value found.\n", expected_value);
     }
+}
+
+int main(void) {
+    hashtable *ht = hashtable_new();
+    hashtable_put(ht, "foo", "1");
+    hashtable_put(ht, "bar", "2");
+    hashtable_put(ht, "baz", "3");
+    hashtable_put(ht, "bar", "4");
+
+    check_value(ht, "foo", "1");
+    check_value(ht, "bar", "4");
 
     hashtable_free(ht);
 }
