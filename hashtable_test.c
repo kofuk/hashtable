@@ -15,6 +15,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 
 #include "hashtable.h"
 
@@ -23,6 +24,7 @@ static void check_value(hashtable *ht, char const *key, char const *expected_val
     if (v) {
         if (strcmp(v, expected_value) != 0) {
             printf("`%s' expected, but got `%s'\n", expected_value, v);
+            exit(1);
         }
     } else {
         printf("`%s' expected, but no value found.\n", expected_value);
@@ -38,6 +40,12 @@ int main(void) {
 
     check_value(ht, "foo", "1");
     check_value(ht, "bar", "4");
+
+    hashtable_erase(ht, "baz");
+    if (hashtable_get(ht, "baz") != NULL) {
+        puts("NULL expected, but got value.");
+        exit(1);
+    }
 
     hashtable_free(ht);
 }

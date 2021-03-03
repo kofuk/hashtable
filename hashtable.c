@@ -165,6 +165,21 @@ static char *vector_lookup(vector *vec, char const *key) {
     return NULL;
 }
 
+static bool vector_erase_key(vector *vec, char const *key) {
+    for (size_t i = 0; i < vec->size; ++i) {
+        if (strcmp(vec->data[i].key, key) == 0) {
+            free(vec->data[i].key);
+            free(vec->data[i].val);
+            for (size_t j = i + 1; j < vec->size; ++j) {
+                vec->data[j - 1] = vec->data[j];
+            }
+            vec->size--;
+            return true;
+        }
+    }
+    return false;
+}
+
 void hashtable_put(hashtable *ht, char const *key, char const *val) {
     if (ht->table_size_index + 1 < sizeof(primes) &&
         ht->size >= (size_t)(primes[ht->table_size_index] * 0.75)) {
@@ -195,6 +210,13 @@ void hashtable_put(hashtable *ht, char const *key, char const *val) {
 char *hashtable_get(hashtable *ht, char const *key) {
     size_t idx = hash(key) % primes[ht->table_size_index];
     return vector_lookup(&ht->data[idx], key);
+}
+
+void hashtable_erase(hashtable *ht, char const *key) {
+    size_t idx = hash(key) % primes[ht->table_size_index];
+    if (vector_erase_key(&ht->data[idx], key)) {
+        ht->size--;
+    }
 }
 
 void hashtable_free(hashtable *obj) {
