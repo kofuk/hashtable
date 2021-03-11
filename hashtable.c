@@ -60,7 +60,7 @@ static size_t hash(char const *str) {
     int r = 47;
 
     size_t len = strlen(str);
-    size_t aligned_len = len & ~(size_t)0xff;
+    size_t aligned_len = len & ~(size_t)0x7;
 
     size_t h = seed ^ (len * m);
 
